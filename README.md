@@ -2,7 +2,9 @@
 
 마스터 오케스트레이터 1개와 독립 스킬 7개, 단계별 산출물 검증 CLI입니다. 벤치마크 블로그를 나중에 받아 스타일 프로필을 교체할 수 있습니다.
 
-현재 구현은 **에이전트가 실행하는 스킬 + 로컬 상태 관리 도구**입니다. Python CLI 자체가 검색/LLM/네이버 브라우저를 호출하는 무인 서비스는 아닙니다. 실제 네이버 에디터 어댑터와 로그인 연결은 추가 작업이며, 실게시 검증은 아직 수행하지 않았습니다.
+현재 구현은 **에이전트 스킬 + 로컬 상태 관리 + 본인 PC의 브라우저 입력·발행 도구**입니다. Windows 전용 프로필에서 직접 로그인하고 실제 편집 요소를 지정해 연결합니다. 화면 확인이 포함된 반자동 방식이며, 실제 네이버에서의 첫 입력·발행 검증은 아직 수행하지 않았습니다.
+
+Windows 사용자는 [전용 브라우저 설치·로그인 안내](docs/windows-browser.md)부터 시작하세요. `scripts/setup-windows.cmd`로 설치하고 `scripts/login-windows.cmd`로 로그인합니다. 네이버 화면을 실제로 연결하기 전에는 검증되지 않은 선택자로 입력하지 않습니다.
 
 ## 스킬
 
@@ -21,7 +23,7 @@
 
 ## 실행
 
-Python 3.11 이상. 런타임 외부 패키지·API 키는 필요 없습니다.
+Python 3.11 이상. 코어 CLI에는 외부 패키지·API 키가 필요 없습니다. 브라우저 기능은 `.[browser]` 추가 패키지와 Chromium이 필요합니다.
 
 ```bash
 cd /workspace/homepan
@@ -41,7 +43,9 @@ python -m homepan advance runs/first-post factcheck
 python -m homepan plan runs/first-post
 ```
 
-마지막 명령은 이미지 업로드 위치와 서식용 텍스트가 포함된 `editor_plan.json`을 만듭니다. 브라우저에 입력하지는 않습니다. 실제 입력·검증 후 에이전트가 `editor_receipt.json`을 작성해야 다음 단계로 진행할 수 있습니다.
+마지막 명령은 이미지 업로드 위치와 서식용 텍스트가 포함된 `editor_plan.json`을 만듭니다. 이 코어 명령 자체는 브라우저에 입력하지 않습니다. PC의 `python -m homepan.browser write runs/first-post`가 별도 프로필의 브라우저를 열어 입력하고, 화면 검토 후 `editor_receipt.json`과 editor 완료 상태를 기록합니다.
+
+클라우드에서 만든 원고는 `python -m homepan export runs/first-post exports/first-post.zip`으로 묶어 PC에 전달할 수 있습니다. 로그인 세션은 ZIP에 포함하지 않습니다.
 
 ```bash
 python -m homepan advance runs/first-post editor
@@ -51,7 +55,7 @@ python -m homepan reserve runs/first-post
 python -m homepan record runs/first-post
 ```
 
-기본 중복 방지 DB는 `.local/publications.sqlite3`입니다. 동일 원고나 실행을 다시 예약하면 차단합니다. 이 도구는 발행 버튼을 클릭하지 않으며, 기록 JSON의 진실성을 독립적으로 입증하지 않습니다.
+코어 CLI의 기본 중복 방지 DB는 `.local/publications.sqlite3`이고, Windows 브라우저 도구는 `%LOCALAPPDATA%\Homepan\publications.sqlite3`를 사용합니다. 두 도구를 함께 사용하면 코어 명령의 `--db`에 브라우저 DB를 지정하세요. 동일 원고나 실행을 다시 예약하면 차단합니다. 위 코어 명령은 발행 버튼을 클릭하지 않습니다. 브라우저의 `review ... --publish`는 화면 검토와 명시적인 발행 확인 후 한 번 클릭하고 비로그인 공개 페이지를 검증합니다.
 
 ## 벤치마크 추가
 
@@ -66,7 +70,7 @@ python -m homepan record runs/first-post
 
 ## 검증과 제한
 
-테스트는 합성 자료로 상태 전환, 해시 변경 감지, 이미지 누락·경로 이탈·사용 권한 상태, 검증 미통과, 오래된 조사, 중복 발행 기록을 확인합니다. **실시간 조사·사실 여부·실제 에디터·실제 발행의 통합 테스트는 아닙니다.**
+테스트는 합성 자료로 상태 전환, 해시 변경 감지, 이미지 누락·경로 이탈·사용 권한 상태, 검증 미통과, 오래된 조사, 중복 발행 기록을 확인합니다. 브라우저 추가 패키지가 있으면 실제 Chromium에서 서식 붙여넣기, 파일 업로드, 프로필 지속성, 제한 화면 중단, 단일 발행 클릭·실패 복구도 검사합니다. **실시간 조사·사실 여부·실제 네이버의 통합 테스트는 아닙니다.** 브라우저 의존성이 없으면 해당 테스트는 skipped로 표시합니다.
 
 - 2만 PV, 홈판 노출, CTR, 3분 체류, 무오류는 보장할 수 없습니다.
 - 타이핑 위장이나 가짜 오타는 구현하지 않습니다. 이미지 색상 변경이 저작권·중복 문제를 해결하지 않습니다.

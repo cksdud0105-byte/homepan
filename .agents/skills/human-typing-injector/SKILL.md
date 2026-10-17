@@ -9,9 +9,19 @@ description: 팩트체크를 통과한 원고에서 편집 계획을 만들고, 
 
 ## 입력 준비
 1. `python -m homepan plan runs/<ID>`로 editor_plan.json을 만듭니다. 이 명령은 브라우저를 조작하지 않습니다.
-2. 실제 브라우저 도구 또는 검증된 Playwright 어댑터가 있는지 확인합니다. 이 저장소에는 네이버 UI 어댑터가 아직 없습니다. 없으면 prepared_not_entered 상태로 멈추고 필요한 연결을 설명합니다.
+2. 본인 Windows PC에서 `python -m homepan.browser` 연결 도구를 사용합니다. [Windows 안내](../../../docs/windows-browser.md)를 읽습니다. 전용 프로필의 실제 네이버 호환성은 첫 현장 테스트에서 확인해야 합니다. 사용자 PC 연결 없이 클라우드에서 로그인하지 않습니다.
 3. 사용자가 로그인한 계정과 대상 블로그를 확인합니다. 비밀번호·쿠키를 채팅이나 저장소에 넣지 않습니다. CAPTCHA·2단계 인증은 사용자가 직접 처리합니다.
 4. 기존 편집 내용이 있으면 보존하고 새로운 문서를 사용합니다. 사용자 초안을 덮어쓰지 않습니다.
+
+## Windows 연결 도구
+- 최초 설치: `scripts/setup-windows.cmd`, 직접 로그인: `scripts/login-windows.cmd`.
+- 실제 화면 요소 지정: `scripts/browser-windows.cmd calibrate --blog-id <ID>`.
+- 클라우드 원고는 `python -m homepan export runs/<ID> exports/<ID>.zip`으로 전달합니다. 로그인 세션을 복사하지 않습니다.
+- 입력·검토: `scripts/browser-windows.cmd write runs/<ID>`; 기존 초안 재검토: `review runs/<ID>`.
+- 도구가 서식 붙여넣기와 사진 첨부를 수행하고 제목·본문·이미지 위치·표·소제목을 대조합니다. 태그·카테고리·대표 이미지·실제 이미지 내용은 사용자가 확인합니다.
+- 입력 기록이 있으면 같은 원고를 자동 재입력하지 않습니다. 보안 인증, 접근 제한, 선택자 변경, 업로드 실패 시 중단하고 기존 초안을 확인합니다.
+- 일반 Chromium에서 클립보드 붙여넣기를 사용합니다. 이전 클립보드 내용은 읽지 않으며 현재 원고 조각으로 교체됩니다.
+- 실제 DOM 대조와 사용자의 `검토완료` 확인 후 도구가 editor_receipt.json과 editor 단계 상태를 기록합니다. 이미 기록된 영수증을 임의로 다시 작성하지 않습니다.
 
 ## 브라우저가 연결된 경우의 절차
 - 실제 현재 DOM/접근성 트리를 확인합니다. 검증하지 않은 CSS 선택자를 추정해 클릭하지 않습니다.

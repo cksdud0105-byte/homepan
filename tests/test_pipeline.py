@@ -7,6 +7,7 @@ import struct
 import tempfile
 import unittest
 import zlib
+import zipfile
 from datetime import datetime, timedelta, timezone
 
 from homepan import cli as h
@@ -254,6 +255,28 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(result['status'], 'measurements_only')
         self.assertEqual(result['ending_counts_heuristic']['해요체'], 30)
         self.assertEqual(result['ending_counts_heuristic']['격식체'], 30)
+
+    def test_export_only_whitelisted_artifacts_and_portable_state(self):
+        self.through('factcheck')
+        (self.root / 'cookies.json').write_text('not-a-real-secret')
+        destination = self.root / 'transfer.zip'
+        core_result = h.export_run(self.root, destination)
+        self.assertEqual(core_result['status'], 'exported')
+        target = self.root / 'unpacked'
+        with zipfile.ZipFile(destination) as archive:
+            self.assertNotIn('cookies.json', archive.namelist())
+            self.assertNotIn('editor_receipt.json', archive.namelist())
+            archive.extractall(target)
+        self.assertIn('factcheck', h.state_check(target)['completed'])
+        h.validate(target, 'factcheck')
+        with self.assertRaises(FileExistsError):
+            h.export_run(self.root, destination)
+
+    def test_export_after_input_is_blocked(self):
+        self.through('factcheck')
+        h.write(self.root / 'browser_progress.json', {'status': 'input_started'})
+        with self.assertRaisesRegex(h.GateError, '이미 입력'):
+            h.export_run(self.root, self.root / 'transfer.zip')
 
 
 if __name__ == '__main__':

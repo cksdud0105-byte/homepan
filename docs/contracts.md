@@ -206,3 +206,15 @@ plan은 도구가 생성합니다. 상태는 `prepared_not_entered`이며 제목
 `python -m homepan record runs/<ID>`가 URL을 정규화하고 DB를 갱신한 다음 publish 단계를 완료합니다. `advance ... publish`는 허용하지 않습니다. 모바일 URL과 PostView.naver URL도 같은 게시물 주소로 정규화합니다.
 
 DB와 run.json 사이에서 중단되더라도 같은 URL을 record하면 멱등적으로 재개할 수 있습니다. reserve 후 응답을 잃으면 새 예약을 만들거나 DB를 지우지 말고 실제 게시 여부를 확인합니다. 예약 발행 접수는 published가 아닙니다.
+
+## PC 전송 및 브라우저 실행 기록
+
+`python -m homepan export runs/<ID> exports/<ID>.zip`은 factcheck까지 완료한 새 실행의 run.json, 5단계 산출물과 실제 이미지 파일만 내보냅니다. 이미 입력/발행한 실행이나 기존 ZIP은 덮어쓰지 않습니다. 검증 일시와 해시는 보존합니다.
+
+`python -m homepan.browser`는 별도의 로컬 PC용 진입점입니다. 직접 로그인한 전용 프로필, 실제 DOM에서 선택한 editor.json, 하나의 공통 발행 DB를 사용합니다. [Windows 실행 계약](windows-browser.md)을 따릅니다.
+
+브라우저 입력은 browser_progress.json에 input_started, event_started/event_completed, entered_needs_review 또는 interrupted_check_existing_draft를 기록합니다. 이 파일이 있으면 write 재실행을 차단합니다. review는 기존 원고를 확인하고 재입력하지 않습니다. 발행 클릭 직전 publish_pending을 기록하며 공개 확인까지 성공하면 published로 바뀝니다.
+
+브라우저가 생성하는 editor_receipt에는 verification_method를 추가합니다. 본문·이미지 위치·표·소제목의 DOM 대조와 운영자의 실제 이미지·서식·태그·대표·카테고리 확인을 구분합니다. 사람 확인을 자동 판정 결과로 표시하지 않습니다.
+
+브라우저의 publication.json에는 timestamp_basis=publication_confirmation_time을 기록합니다. published_at은 플랫폼이 제공한 정확한 등록 시각이 아니라 공개 결과를 확인한 시각입니다. 로그인 정보를 공유하지 않는 새 브라우저 컨텍스트에서 공개 제목·본문·이미지 위치·서식과 이미지 로드를 확인합니다.

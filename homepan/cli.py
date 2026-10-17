@@ -10,6 +10,7 @@ import re
 import sqlite3
 import sys
 import tempfile
+import zipfile
 from datetime import datetime, timezone
 from urllib.parse import urlparse, parse_qs
 
@@ -148,6 +149,9 @@ def post(data, final=False):
 
 def asset_path(root, value):
     need(isinstance(value, str) and value, "이미지 상대 경로 필요")
+    need(not Path(value).is_absolute(), "이미지는 실행 폴더 기준 상대 경로여야 합니다")
+    need(".." not in Path(value).parts and "\\" not in value and ":" not in value,
+         "이미지 경로는 실행 폴더 안의 정규 상대 경로여야 합니다")
     path = (root / value).resolve()
     need(path.is_relative_to(root.resolve()), "이미지 파일은 실행 폴더 안에 있어야 합니다")
     need(path.is_file(), f"이미지 파일 없음: {value}")
@@ -390,6 +394,27 @@ def default_style():
             "limitations": "벤치마크 미제공; 모바일 줄 수는 기기와 글꼴에 따라 달라짐"}
 
 
+def export_run(root, output):
+    root = root.resolve()
+    state = state_check(root)
+    need(list(state["completed"]) == list(STAGES[:5]), "팩트체크까지 완료한 새 원고만 PC로 내보낼 수 있습니다")
+    need(not (root / "browser_progress.json").exists(), "이미 입력한 실행은 재입력용으로 내보내지 않습니다")
+    validate(root, "factcheck")
+    names = {"run.json"}
+    for stage in STAGES[:5]:
+        names.update(FILES[stage])
+    for item in read(root / "image_map.json")["images"]:
+        asset_path(root, item["file_path"])
+        names.add(str(Path(item["file_path"])))
+    need(output.suffix.lower() == ".zip", "출력 파일은 .zip이어야 합니다")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(output, "x", compression=zipfile.ZIP_DEFLATED) as archive:
+        for name in sorted(names):
+            archive.write(root / name, arcname=Path(name).as_posix())
+    return {"status": "exported", "files": len(names), "archive": str(output), "sha256": digest(output),
+            "note": "로그인 세션·브라우저 설정·DB는 포함하지 않습니다. 검토 유효기간은 유지됩니다."}
+
+
 def analyze_sample(source, output):
     text = Path(source).read_text(encoding="utf-8")
     need(len(text.strip()) >= 200, "분석할 본문이 너무 짧습니다 (최소 200자)")
@@ -430,6 +455,9 @@ def main(argv=None):
     sample.add_argument("source", type=Path)
     sample.add_argument("output", type=Path)
     sub.add_parser("doctor")
+    export = sub.add_parser("export")
+    export.add_argument("run", type=Path)
+    export.add_argument("output", type=Path)
     args = parser.parse_args(argv)
     try:
         if args.command == "init":
@@ -441,6 +469,8 @@ def main(argv=None):
             result = advance(args.run, "style")
         elif args.command == "analyze-sample":
             result = analyze_sample(args.source, args.output)
+        elif args.command == "export":
+            result = export_run(args.run, args.output)
         elif args.command == "doctor":
             result = {"python": sys.version.split()[0], "local_pipeline": "available",
                       "live_search": "requires_agent_web_tools_or_accessible_sources",

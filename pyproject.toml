@@ -9,8 +9,15 @@ description = "Evidence-based Korean blog production skills and local pipeline g
 requires-python = ">=3.11"
 dependencies = []
 
+[project.optional-dependencies]
+browser = ["playwright==1.62.0", "markdown-it-py==4.2.0"]
+
 [project.scripts]
 homepan = "homepan.cli:main"
+homepan-browser = "homepan.browser:main"
 
 [tool.setuptools.packages.find]
 include = ["homepan*"]
+
+[tool.setuptools.package-data]
+homepan = ["picker.js"]
