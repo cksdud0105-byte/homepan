@@ -59,9 +59,9 @@ python -m homepan record runs/first-post
 
 ## 벤치마크 추가
 
-사용 예: “`blog-style-cloner`로 이 블로그 홈을 분석해서 `profiles/my-style`에 저장해 줘.” 홈 주소 하나에서 공개 최신 글을 최대 5개 찾아 표본으로 사용합니다.
+사용 예: “`blog-style-cloner`로 이 블로그 홈을 분석해서 `profiles/my-style`에 저장해 줘.” 홈 주소 하나에서 공개 최신 글 10개를 먼저 주제별로 분류하고, 사용자 목표 분야와 맞는 글로 스타일 표본을 구성합니다.
 
-1. 홈 주소에 접근해 거기 표시된 최신 공개 글을 따라갑니다. 최대 5편을 표본으로 분석하며 1편만 열려도 표본 수와 한계를 기록합니다.
+1. 홈 주소에 접근해 최신 공개 글 10개의 주제 적합도를 먼저 확인합니다. `fit` 글 중 최대 5편을 문체 표본으로 분석하며, 3편 미만이면 표본 수와 한계를 기록합니다.
 2. 본문 통계 보조 도구: `python -m homepan analyze-sample 본문.txt measurements.json`.
 3. 스킬이 측정 결과와 직접 검토를 합쳐 `style_profile.json`과 `.md`를 작성합니다.
 4. 새 실행에 `python -m homepan init runs/next-post --profile profiles/my-style/style_profile.json`으로 적용합니다.
