@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "status": "blocked_access",
+  "target_categories": ["연예", "이슈", "방송", "국내이슈"],
+  "target_placement": "네이버 홈판",
+  "selection": {
+    "mode": "popular",
+    "source": "platform_visible_popular_posts_ui",
+    "requested_posts_per_blog": 10,
+    "requested_posts_total": 100,
+    "analyze_all_selected_posts": true,
+    "fallback_to_latest": false,
+    "infer_popularity_from_engagement": false,
+    "period": null,
+    "period_status": "not_observed"
+  },
+  "blogs": [
+    {"blog_id": "minhee5896", "url": "https://m.blog.naver.com/PostList.naver?blogId=minhee5896&tab=1&trackingCode=blog_bloghome"},
+    {"blog_id": "kka_dream", "url": "https://m.blog.naver.com/PostList.naver?blogId=kka_dream&tab=1"},
+    {"blog_id": "0613hottehotte", "url": "https://m.blog.naver.com/PostList.naver?blogId=0613hottehotte&tab=1"},
+    {"blog_id": "loonshots88", "url": "https://m.blog.naver.com/PostList.naver?blogId=loonshots88&tab=1"},
+    {"blog_id": "18alsrb", "url": "https://m.blog.naver.com/18alsrb?tab=1"},
+    {"blog_id": "press02", "url": "https://m.blog.naver.com/press02?tab=1"},
+    {"blog_id": "yahoyaho08", "url": "https://m.blog.naver.com/yahoyaho08?tab=1"},
+    {"blog_id": "cs1487", "url": "https://m.blog.naver.com/cs1487?tab=1"},
+    {"blog_id": "digndkdl", "url": "https://m.blog.naver.com/digndkdl?tab=1"},
+    {"blog_id": "hodrt", "url": "https://m.blog.naver.com/hodrt?tab=1"}
+  ],
+  "observed_posts": [],
+  "access_check": {
+    "checked_at": "2026-10-23T17:49:06.502226+09:00",
+    "attempted_url": "https://m.blog.naver.com/PostList.naver?blogId=minhee5896&tab=1&trackingCode=blog_bloghome",
+    "error": "URLError: <urlopen error Tunnel connection failed: 403 Forbidden>",
+    "blocking_layer": "https_proxy_connect",
+    "blog_document_received": false,
+    "runtime_policy_mode": "restricted",
+    "runtime_policy_state": "enforced",
+    "runtime_custom_allowed_hosts": [],
+    "runtime_effective_allowed_hosts_include_naver": false,
+    "saved_config_contains_naver_hosts": true,
+    "other_urls_attempted": false,
+    "other_urls_not_attempted_reason": "All provided URLs share the host denied at HTTPS CONNECT."
+  },
+  "resume_requirements": [
+    "Apply the saved network configuration to the runtime through the supported environment configuration workflow.",
+    "Verify the runtime policy and successful HTTPS access before inspecting popular-post UI.",
+    "Record actual UI labels, filters, periods, ordering and post URLs before analyzing the requested samples."
+  ]
+}
